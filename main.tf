@@ -17,3 +17,27 @@ module "vpc" {
     Terraform   = "true"
   }
 }
+
+module "ecs_cluster" {
+  source = "terraform-aws-modules/ecs/aws//modules/cluster"
+
+  name = "ecs-cluster-karina-training"
+
+  configuration = {}
+
+
+  default_capacity_provider_strategy = {
+    FARGATE = {
+      weight = 50
+      base   = 20
+    }
+    FARGATE_SPOT = {
+      weight = 50
+    }
+  }
+
+  tags = {
+    Environment = "Development"
+    Project     = "EcsEc2"
+  }
+}
