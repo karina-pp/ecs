@@ -41,3 +41,72 @@ module "ecs_cluster" {
     Project     = "EcsEc2"
   }
 }
+
+
+
+
+
+
+
+# ECS Service Module
+module "ecs_task_definition" {
+  source = "terraform-aws-modules/ecs/aws//modules/service"
+
+  # Service
+  name           = "ecs-service-karina-training"
+  cluster_arn    = module.ecs_cluster.arn
+  create_service = true
+
+  assign_public_ip = true
+
+  # Task Definition
+  volume = {}
+
+  runtime_platform = {
+    cpu_architecture        = "X86_64"
+    operating_system_family = "LINUX"
+  }
+
+  # Container definition(s)
+  container_definitions = {
+    al2023 = {
+      image = "kodekloud/ecommerce:apparels"
+      portMappings = [
+        {
+          containerPort = 8080
+          hostPort      = 8080
+          protocol      = "tcp"
+        }
+      ]
+
+      mountPoints = [
+        {
+
+        }
+      ]
+    }
+  }
+
+  subnet_ids = module.vpc.public_subnets
+
+  security_group_ingress_rules = {
+    web = {
+      from_port   = 8080
+      to_port     = 8080
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+
+  tags = {
+    Environment = "Development"
+    Project     = "EcsKarinaTraining"
+  }
+}
